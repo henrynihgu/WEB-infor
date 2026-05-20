@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile & Game - My Web Project</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* Background Utama Bertema Limbus */
+        body {
+            background: linear-gradient(135deg, #1c1611 0%, #2d2219 100%) !important;
+            color: #e3dcd3 !important;
+            min-height: 100vh;
+        }
+
+        /* Navigasi Hitam & Border Merah Tua */
+        .navbar {
+            background-color: #0c0a08 !important;
+            border-bottom: 3px solid #5c1d1d !important; 
+        }
+        .navbar-nav .nav-link { color: #bfaea3 !important; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #b38f43 !important; }
+        .navbar-brand { color: #b38f43 !important; }
+
+        /* Desain Kotak Profil & Game (Industrial Kaku) */
+        .card {
+            background-color: #0c0a08 !important;
+            border: 2px solid #3d3023 !important;
+            border-radius: 0px !important; /* Kotak tajam */
+        }
+        .card-title {
+            color: #b38f43 !important;
+        }
+
+        /* Tombol Kotak Ala Limbus */
+        .btn-limbus {
+            border-radius: 0px !important;
+            background-color: #0c0a08 !important;
+            color: #b38f43 !important; 
+            border: 2px solid #b38f43 !important; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-limbus:hover {
+            background-color: #b38f43 !important;
+            color: #0c0a08 !important; 
+            box-shadow: 0 0 10px rgba(179, 143, 67, 0.5); 
+        }
+
+        /* Kolom Input Form */
+        .form-control {
+            background-color: #14110f !important;
+            border: 1px solid #5c4a3c !important;
+            color: #e3dcd3 !important;
+            border-radius: 0px !important;
+        }
+        .form-control:focus {
+            border-color: #b38f43 !important;
+            box-shadow: 0 0 5px rgba(179, 143, 67, 0.3) !important;
+        }
+
+        /* Desain Alert Respon JS */
+        .alert {
+            border-radius: 0px !important;
+            background-color: #14110f !important;
+            border: 1px solid #3d3023 !important;
+            color: #e3dcd3 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">MyWebsite</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Home</a>
+                <a class="nav-link active" href="profile.html">Profile & Game</a>
+                <a class="nav-link" href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body py-5" style="border-top: 4px solid #5c1d1d;">
+                        <img src="thumbclair.jpg" alt="Foto Profil" class="mb-3 mx-auto d-block" style="width: 100px; height: 100px; border: 2px solid #b38f43; object-fit: cover;">
+                        <h4 class="card-title fw-bold mb-1">Henry</h4>
+                        <p class="fw-medium" style="color: #e74c3c;">Siswa SMA / Developer</p>
+                        <p class="card-text text-muted px-2">Tertarik dengan pemrograman, hardware komputer, dan pengembangan aplikasi web ala UI Limbus Company.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4" style="border-top: 4px solid #b38f43;">
+                        <h3 class="card-title pb-2 mb-3 fw-bold">👁️ Mephistopheles: Sanity Check</h3>
+                        <p class="text-muted">Lemparkan koin identitas untuk menstabilkan kesadaran. Jaga agar tidak menyentuh batas korosi (-45 SP)!</p>
+                        
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between fw-bold mb-1">
+                                <span style="color: #bfaea3;">Status Mental Sinner</span>
+                                <span id="spText" style="color: #bfaea3;">0 SP</span>
+                            </div>
+                            <div class="progress" style="height: 20px; border-radius: 0px; background-color: #14110f; border: 1px solid #3d3023;">
+                                <div id="spBar" class="progress-bar" style="width: 50%; background-color: #555; transition: width 0.3s ease, background-color 0.3s ease;"></div>
+                            </div>
+                        </div>
+
+                        <button id="btnToss" class="btn btn-limbus w-100 mb-3" onclick="tossCoin()">LEMPAR KOIN CLASH</button>
+                        <button id="btnReset" class="btn btn-outline-danger w-100 d-none mb-3" style="border-radius: 0px;" onclick="resetGame()">RE-EXTRACT SYSTEM</button>
+                        
+                        <div id="gameLog" class="alert text-center d-none"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sanityPoints = 0; // Rentang: -45 sampai +45
+        const maxSP = 45;
+        const minSP = -45;
+
+        function tossCoin() {
+            // Mekanik Acak Koin Limbus (50% Heads, 50% Tails)
+            const isHeads = Math.random() < 0.5;
+            const logBox = document.getElementById('gameLog');
+            
+            logBox.classList.remove('d-none');
+
+            if (isHeads) {
+                sanityPoints += 15;
+                if (sanityPoints > maxSP) sanityPoints = maxSP;
+                logBox.style.borderColor = "#b38f43";
+                logBox.innerHTML = "<span style='color: #b38f43;'>🪙 <strong>HEADS!</strong></span> Clash berhasil dimenangkan. Kesadaran Sinner menguat (+15 SP).";
+            } else {
+                sanityPoints -= 15;
+                if (sanityPoints < minSP) sanityPoints = minSP;
+                logBox.style.borderColor = "#5c1d1d";
+                logBox.innerHTML = "<span style='color: #e74c3c;'>🪙 <strong>TAILS...</strong></span> Serangan mental musuh menembus pertahanan. Sanity menurun (-15 SP).";
+            }
+
+            updateUI();
+
+            // Deteksi Kondisi Akhir Pertandingan
+            if (sanityPoints === maxSP) {
+                logBox.style.borderColor = "#b38f43";
+                logBox.innerHTML = "🎉 <strong>SINKRONISASI SEMPURNA!</strong> Status mental stabil penuh. Anda mengendalikan ego dengan mutlak!";
+                endGame();
+            } else if (sanityPoints === minSP) {
+                logBox.style.borderColor = "#e74c3c";
+                logBox.innerHTML = "🚨 <strong>!! E.G.O CORROSION !!</strong> Sinner kehilangan kesadaran secara total dan mengalami distorsi.";
+                endGame();
+            }
+        }
+
+        function updateUI() {
+            const spText = document.getElementById('spText');
+            const spBar = document.getElementById('spBar');
+            
+            spText.innerText = `${sanityPoints} SP`;
+
+            // Transformasi nilai posisi bar (-45 s/d 45 diubah ke persentase 0% s/d 100%)
+            let percentage = ((sanityPoints - minSP) / (maxSP - minSP)) * 100;
+            spBar.style.width = `${percentage}%`;
+
+            // Mutasi warna progress bar berdasarkan kondisi SP
+            if (sanityPoints > 0) {
+                spBar.style.backgroundColor = "#b38f43"; // Emas saat mental positif
+                spText.style.color = "#b38f43";
+            } else if (sanityPoints < 0) {
+                spBar.style.backgroundColor = "#8b0000"; // Merah korosif saat negatif
+                spText.style.color = "#e74c3c";
+            } else {
+                spBar.style.backgroundColor = "#555"; // Abu-abu seimbang di angka 0
+                spText.style.color = "#bfaea3";
+            }
+        }
+
+        function endGame() {
+            document.getElementById('btnToss').disabled = true;
+            document.getElementById('btnReset').classList.remove('d-none');
+        }
+
+        function resetGame() {
+            sanityPoints = 0;
+            updateUI();
+            document.getElementById('btnToss').disabled = false;
+            document.getElementById('btnReset').classList.add('d-none');
+            
+            const logBox = document.getElementById('gameLog');
+            logBox.style.borderColor = "#3d3023";
+            logBox.innerHTML = "<em>Sistem Mephistopheles berhasil dikalibrasi ulang. Siap untuk ekstraksi berikutnya.</em>";
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
