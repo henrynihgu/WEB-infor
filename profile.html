@@ -23,11 +23,11 @@
         .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #b38f43 !important; }
         .navbar-brand { color: #b38f43 !important; }
 
-        /* Desain Kotak Profil & Game (Industrial Kaku) */
+        /* Desain Kotak Profil & Game */
         .card {
             background-color: #0c0a08 !important;
             border: 2px solid #3d3023 !important;
-            border-radius: 0px !important; /* Kotak tajam */
+            border-radius: 0px !important;
         }
         .card-title {
             color: #b38f43 !important;
@@ -48,24 +48,82 @@
             box-shadow: 0 0 10px rgba(179, 143, 67, 0.5); 
         }
 
-        /* Kolom Input Form */
-        .form-control {
-            background-color: #14110f !important;
-            border: 1px solid #5c4a3c !important;
-            color: #e3dcd3 !important;
-            border-radius: 0px !important;
-        }
-        .form-control:focus {
-            border-color: #b38f43 !important;
-            box-shadow: 0 0 5px rgba(179, 143, 67, 0.3) !important;
-        }
-
         /* Desain Alert Respon JS */
         .alert {
             border-radius: 0px !important;
             background-color: #14110f !important;
             border: 1px solid #3d3023 !important;
             color: #e3dcd3 !important;
+        }
+
+        /* ANIMASI & VISUAL KOIN 3D */
+        .coin-container {
+            perspective: 1000px;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 25px auto;
+        }
+        .coin {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+        }
+        .side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15px;
+            border: 4px dashed #0c0a08;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* SISI HEADS (NORMAL) */
+        .heads {
+            background-color: #b38f43; /* Emas Terang */
+            color: #0c0a08;
+            box-shadow: 0 0 20px rgba(179, 143, 67, 0.7);
+        }
+
+        /* SISI TAILS (EMAS GELAP SEPIA) */
+        .tails {
+            background-color: #3d3023; 
+            color: #bfaea3;
+            transform: rotateY(180deg);
+            box-shadow: 0 0 15px rgba(61, 48, 35, 0.7);
+            border-color: #1c1611;
+        }
+
+        /* SPECIAL BUFF: RED COIN MODE */
+        .coin.special-red .heads {
+            background-color: #e74c3c !important; /* Merah terang */
+            color: #0c0a08 !important;
+            border-color: #8b0000 !important;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.8) !important;
+        }
+        .coin.special-red .tails {
+            background-color: #8b0000 !important; /* Merah tua kusam */
+            color: #e3dcd3 !important;
+            border-color: #5c1d1d !important;
+            box-shadow: 0 0 25px rgba(139, 0, 0, 0.8) !important;
+        }
+
+        /* Efek Berputar Kencang */
+        .spinning {
+            animation: spinFast 0.15s linear infinite;
+        }
+        @keyframes spinFast {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
         }
     </style>
 </head>
@@ -98,21 +156,40 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body p-4" style="border-top: 4px solid #b38f43;">
-                        <h3 class="card-title pb-2 mb-3 fw-bold">👁️ Mephistopheles: Sanity Check</h3>
-                        <p class="text-muted">Lemparkan koin identitas untuk menstabilkan kesadaran. Jaga agar tidak menyentuh batas korosi (-45 SP)!</p>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h3 class="card-title fw-bold mb-0">👁️ Canto I: The Outcast (Mini RPG)</h3>
+                            <span id="stageBadge" class="badge bg-danger px-3 py-2 fs-6" style="border-radius: 0px;">STAGE 1</span>
+                        </div>
+                        <h5 id="enemyText" class="text-warning mb-3">Musuh: Prosthetic Scout</h5>
+                        <p id="storyText" class="text-muted mb-4">Mephistopheles tiba di L Corp branch. Para pendosa harus membersihkan gerbang masuk dari serbuan robot pemberontak!</p>
                         
+                        <div class="coin-container">
+                            <div id="visualCoin" class="coin">
+                                <div class="side heads">HEADS</div>
+                                <div class="side tails">TAILS</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 mb-4 text-start" style="background-color: #050403; border-left: 3px solid #b38f43; font-size: 13px;">
+                            <span class="text-warning fw-bold d-block mb-1">📋 PANDUAN TEKNIS MEPHISTOPHELES:</span>
+                            <ul class="mb-0 ps-3 text-muted" style="list-style-type: square;">
+                                <li><strong style="color: #b38f43;">Koin Normal (Emas):</strong> Sisi HEADS memberikan <span class="text-success fw-bold">+15 SP</span>. Sisi TAILS (Emas Gelap) mengurangi <span class="text-danger fw-bold">-15 SP</span>.</li>
+                                <li><strong style="color: #e74c3c;">RED COIN (15% Peluang):</strong> Risiko Ekstrem! Sisi HEADS memberikan <span class="text-success fw-bold">+30 SP</span>. Sisi TAILS mengurangi <span class="text-danger fw-bold">-30 SP</span>.</li>
+                            </ul>
+                        </div>
+
                         <div class="mb-4">
                             <div class="d-flex justify-content-between fw-bold mb-1">
-                                <span style="color: #bfaea3;">Status Mental Sinner</span>
-                                <span id="spText" style="color: #bfaea3;">0 SP</span>
+                                <span style="color: #bfaea3;">Sanity Level (Batas Korosi: -45 SP)</span>
+                                <span id="spText" style="color: #bfaea3;">0 / 15 SP</span>
                             </div>
                             <div class="progress" style="height: 20px; border-radius: 0px; background-color: #14110f; border: 1px solid #3d3023;">
                                 <div id="spBar" class="progress-bar" style="width: 50%; background-color: #555; transition: width 0.3s ease, background-color 0.3s ease;"></div>
                             </div>
                         </div>
 
-                        <button id="btnToss" class="btn btn-limbus w-100 mb-3" onclick="tossCoin()">LEMPAR KOIN CLASH</button>
-                        <button id="btnReset" class="btn btn-outline-danger w-100 d-none mb-3" style="border-radius: 0px;" onclick="resetGame()">RE-EXTRACT SYSTEM</button>
+                        <button id="btnToss" class="btn btn-limbus w-100 mb-3 py-2" onclick="startCoinToss()">LEMPAR KOIN CLASH</button>
+                        <button id="btnReset" class="btn btn-outline-danger w-100 d-none mb-3" style="border-radius: 0px;" onclick="resetGame()">RE-EXTRACT SYSTEM (RESTART)</button>
                         
                         <div id="gameLog" class="alert text-center d-none"></div>
                     </div>
@@ -122,62 +199,121 @@
     </div>
 
     <script>
-        let sanityPoints = 0; // Rentang: -45 sampai +45
-        const maxSP = 45;
+        let currentStage = 1;
+        let sanityPoints = 0;
         const minSP = -45;
+        let isSpecialCoinActive = false;
 
-        function tossCoin() {
-            // Mekanik Acak Koin Limbus (50% Heads, 50% Tails)
-            const isHeads = Math.random() < 0.5;
+        const stageData = {
+            1: { name: "Prosthetic Scout", target: 15, story: "Mephistopheles tiba di L Corp branch. Para pendosa harus membersihkan gerbang masuk dari serbuan robot pemberontak!" },
+            2: { name: "Prosthetic Thugs", target: 30, story: "Koridor semakin dalam dan sempit. Pasukan pemberontak bersenjata berat mencoba memotong jalur gerak Gregor!" },
+            3: { name: "Abnormality: Ebony Queen's Apple (Minion)", target: 45, story: "Bau busuk menyeruak. Akar tanaman aneh mulai merambat di dinding besi fasilitas bawah tanah." },
+            4: { name: "Inquisition Elite Guard", target: 60, story: "Penjaga elit dari masa lalu Gregor menghadang jalan. Sedikit lagi menuju ruang jantung reaktor!" },
+            5: { name: "BOSS: The Golden Apple (Yuri's Distortion)", target: 75, story: "NURANI SINKRON! Distorsi memuncak, wujud Yuri telah terlahap sepenuhnya oleh Golden Apple. Kalahkan boss untuk menyelesaikan Canto I!" }
+        };
+
+        function startCoinToss() {
+            const coin = document.getElementById('visualCoin');
+            const btnToss = document.getElementById('btnToss');
             const logBox = document.getElementById('gameLog');
+
+            btnToss.disabled = true;
+            logBox.classList.add('d-none');
+
+            isSpecialCoinActive = Math.random() < 0.15; 
             
-            logBox.classList.remove('d-none');
-
-            if (isHeads) {
-                sanityPoints += 15;
-                if (sanityPoints > maxSP) sanityPoints = maxSP;
-                logBox.style.borderColor = "#b38f43";
-                logBox.innerHTML = "<span style='color: #b38f43;'>🪙 <strong>HEADS!</strong></span> Clash berhasil dimenangkan. Kesadaran Sinner menguat (+15 SP).";
+            if (isSpecialCoinActive) {
+                coin.classList.add('special-red');
             } else {
-                sanityPoints -= 15;
-                if (sanityPoints < minSP) sanityPoints = minSP;
-                logBox.style.borderColor = "#5c1d1d";
-                logBox.innerHTML = "<span style='color: #e74c3c;'>🪙 <strong>TAILS...</strong></span> Serangan mental musuh menembus pertahanan. Sanity menurun (-15 SP).";
+                coin.classList.remove('special-red');
             }
 
-            updateUI();
+            coin.classList.add('spinning');
 
-            // Deteksi Kondisi Akhir Pertandingan
-            if (sanityPoints === maxSP) {
-                logBox.style.borderColor = "#b38f43";
-                logBox.innerHTML = "🎉 <strong>SINKRONISASI SEMPURNA!</strong> Status mental stabil penuh. Anda mengendalikan ego dengan mutlak!";
-                endGame();
-            } else if (sanityPoints === minSP) {
-                logBox.style.borderColor = "#e74c3c";
-                logBox.innerHTML = "🚨 <strong>!! E.G.O CORROSION !!</strong> Sinner kehilangan kesadaran secara total dan mengalami distorsi.";
-                endGame();
-            }
+            setTimeout(() => {
+                coin.classList.remove('spinning');
+                const isHeads = Math.random() < 0.5;
+                logBox.classList.remove('d-none');
+
+                let targetSP = stageData[currentStage].target;
+                let baseSpVal = 15;
+                if (isSpecialCoinActive) baseSpVal = 30;
+
+                if (isHeads) {
+                    coin.style.transform = "rotateY(0deg)";
+                    sanityPoints += baseSpVal;
+                    if (sanityPoints > targetSP) sanityPoints = targetSP;
+                    logBox.style.borderColor = isSpecialCoinActive ? "#e74c3c" : "#b38f43";
+                    
+                    if (isSpecialCoinActive) {
+                        logBox.innerHTML = `🔴 🪙 <strong style="color: #e74c3c;">SPECIAL: RED COIN HEADS!</strong> Sinister Resonance aktif. Serangan Sinner meledak total! Double Buff (${baseSpVal} SP)!`;
+                    } else {
+                        logBox.innerHTML = `🪙 <strong style="color: #b38f43;">HEADS!</strong> Menggandakan serangan koin. Sinner unggul dalam Clash (+15 SP).`;
+                    }
+                } else {
+                    coin.style.transform = "rotateY(180deg)";
+                    sanityPoints -= baseSpVal;
+                    if (sanityPoints < minSP) sanityPoints = minSP;
+                    logBox.style.borderColor = "#5c1d1d";
+
+                    if (isSpecialCoinActive) {
+                        logBox.innerHTML = `🔴 🪙 <strong style="color: #e74c3c;">SPECIAL: RED COIN TAILS...</strong> Pertahanan gagal total. Tekanan mental bertambah parah. Double Penalti (-${baseSpVal} SP)!`;
+                    } else {
+                        logBox.innerHTML = `🪙 <strong style="color: #bfaea3;">TAILS (Suram)...</strong> Gagal menahan serangan musuh. Tekanan mental bertambah (-15 SP).`;
+                    }
+                }
+
+                updateUI();
+
+                if (sanityPoints === minSP) {
+                    logBox.style.borderColor = "#e74c3c";
+                    logBox.innerHTML = `🚨 <strong>!! E.G.O CORROSION !!</strong> Jiwa Sinner hancur di Stage ${currentStage}. Identitas melebur dengan kegelapan. Game Over!`;
+                    endGame();
+                } else if (sanityPoints === targetSP) {
+                    if (currentStage < 5) {
+                        currentStage++;
+                        logBox.style.borderColor = "#2ecc71";
+                        logBox.innerHTML = `🎉 <strong>STAGE CLEARED!</strong> Musuh tumbang. Bersiap menuju area berikutnya!`;
+                        
+                        document.getElementById('stageBadge').innerText = `STAGE ${currentStage}`;
+                        if(currentStage === 5) document.getElementById('stageBadge').className = "badge bg-warning text-dark px-3 py-2 fs-6";
+                        
+                        document.getElementById('enemyText').innerText = `Musuh: ${stageData[currentStage].name}`;
+                        document.getElementById('storyText').innerText = stageData[currentStage].story;
+                        
+                        sanityPoints = 0;
+                        updateUI();
+                        btnToss.disabled = false;
+                    } else {
+                        logBox.style.borderColor = "#b38f43";
+                        logBox.innerHTML = `🏆 <strong>CANTO I CLEARED!</strong> Golden Apple berhasil dihancurkan. Selamat Manajer, Gregor berhasil mengamankan Golden Bough! Project selesai!`;
+                        endGame();
+                    }
+                } else {
+                    btnToss.disabled = false;
+                }
+
+            }, 600);
         }
 
         function updateUI() {
             const spText = document.getElementById('spText');
             const spBar = document.getElementById('spBar');
+            let targetSP = stageData[currentStage].target;
             
-            spText.innerText = `${sanityPoints} SP`;
+            spText.innerText = `${sanityPoints} / ${targetSP} SP`;
 
-            // Transformasi nilai posisi bar (-45 s/d 45 diubah ke persentase 0% s/d 100%)
-            let percentage = ((sanityPoints - minSP) / (maxSP - minSP)) * 100;
+            let percentage = ((sanityPoints - minSP) / (targetSP - minSP)) * 100;
             spBar.style.width = `${percentage}%`;
 
-            // Mutasi warna progress bar berdasarkan kondisi SP
             if (sanityPoints > 0) {
-                spBar.style.backgroundColor = "#b38f43"; // Emas saat mental positif
+                spBar.style.backgroundColor = "#b38f43";
                 spText.style.color = "#b38f43";
             } else if (sanityPoints < 0) {
-                spBar.style.backgroundColor = "#8b0000"; // Merah korosif saat negatif
+                spBar.style.backgroundColor = "#8b0000";
                 spText.style.color = "#e74c3c";
             } else {
-                spBar.style.backgroundColor = "#555"; // Abu-abu seimbang di angka 0
+                spBar.style.backgroundColor = "#555";
                 spText.style.color = "#bfaea3";
             }
         }
@@ -188,14 +324,23 @@
         }
 
         function resetGame() {
+            currentStage = 1;
             sanityPoints = 0;
+            
+            document.getElementById('stageBadge').innerText = "STAGE 1";
+            document.getElementById('stageBadge').className = "badge bg-danger px-3 py-2 fs-6";
+            document.getElementById('enemyText').innerText = `Musuh: ${stageData[1].name}`;
+            document.getElementById('storyText').innerText = stageData[1].story;
+            
             updateUI();
+            document.getElementById('visualCoin').style.transform = "rotateY(0deg)";
+            document.getElementById('visualCoin').classList.remove('special-red');
             document.getElementById('btnToss').disabled = false;
             document.getElementById('btnReset').classList.add('d-none');
             
             const logBox = document.getElementById('gameLog');
             logBox.style.borderColor = "#3d3023";
-            logBox.innerHTML = "<em>Sistem Mephistopheles berhasil dikalibrasi ulang. Siap untuk ekstraksi berikutnya.</em>";
+            logBox.innerHTML = "<em>Sistem Mephistopheles di-reboot ke Stage 1. Ekstraksi ulang dimulai!</em>";
         }
     </script>
 
